@@ -62,32 +62,28 @@ body{
   border-bottom:1px solid var(--header-border);
   transition:background .3s;
 }
-.btn-back{width:36px;height:36px;border-radius:8px;border:none;background:transparent;
+.btn-icon{width:36px;height:36px;border-radius:8px;border:none;background:transparent;
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   color:var(--text-mute);transition:.2s;flex-shrink:0}
-.btn-back:hover{background:rgba(128,128,128,0.1)}
-.btn-back .ms{font-family:'Material Symbols Outlined';font-size:22px}
+.btn-icon:hover{background:rgba(128,128,128,0.1)}
+.btn-icon .ms{font-family:'Material Symbols Outlined';font-size:22px}
+
 .header-title{flex:1;font-size:13px;font-weight:700;color:var(--text);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;
   letter-spacing:.02em}
 .header-page{font-size:11px;font-weight:700;color:var(--text-mute);
   flex-shrink:0;letter-spacing:.04em;min-width:52px;text-align:right}
-.btn-settings{width:36px;height:36px;border-radius:8px;border:none;background:transparent;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  color:var(--text-mute);transition:.2s;flex-shrink:0}
-.btn-settings:hover{background:rgba(128,128,128,0.1)}
-.btn-settings .ms{font-family:'Material Symbols Outlined';font-size:22px}
 
 /* ── STAGE (reading area) ── */
 .stage{
   position:fixed;
   top:48px;left:0;right:0;
-  bottom:6px; /* progress bar height */
+  bottom:6px;
   overflow:hidden;
   display:flex;align-items:center;justify-content:center;
 }
 
-/* ── PAGE ── */
+/* ── PDF PAGE ── */
 .page{
   position:absolute;
   top:0;left:0;right:0;bottom:0;
@@ -96,28 +92,6 @@ body{
   display:flex;flex-direction:column;
   will-change:transform,opacity;
 }
-
-/* TXT page content */
-.page-text{
-  font-family:'Nanum Myeongjo',Georgia,serif;
-  font-size:var(--fsize,17px);
-  line-height:1.95;
-  color:var(--text);
-  flex:1;overflow:hidden;
-  white-space:pre-wrap;
-  word-break:keep-all;
-  transition:color .3s;
-}
-
-/* Chapter title style (lines starting with #) */
-.page-text .chapter-title{
-  font-size:calc(var(--fsize,17px) * 1.25);
-  font-weight:700;text-align:center;
-  margin-bottom:1.5em;margin-top:.5em;
-  letter-spacing:.05em;
-}
-
-/* PDF canvas page */
 .page-canvas{
   flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;
 }
@@ -127,58 +101,46 @@ body{
   box-shadow:0 4px 20px var(--page-shadow);
 }
 
-/* Page corner decoration */
-.page::after{
+/* ── TXT SCROLLER (Multi-column) ── */
+.txt-scroller {
+  position:absolute; inset:0; overflow:hidden;
+}
+.txt-content {
+  height: 100%;
+  padding: 28px 24px 24px;
+  box-sizing: border-box;
+  /* 단 너비를 화면 전체(패딩 제외)로 설정하여 화면 단위로 끊기게 함 */
+  column-width: calc(100vw - 48px);
+  column-gap: 48px;
+  word-break: break-word;
+  white-space: pre-wrap;
+  transition: transform 0.25s ease-out;
+  color: var(--text);
+  font-family: 'Nanum Myeongjo', Georgia, serif;
+  font-size: var(--fsize, 17px);
+  line-height: 1.95;
+}
+
+/* Corner decoration */
+.stage::after{
   content:'';position:absolute;bottom:8px;right:8px;
   width:18px;height:18px;
   border-right:1px solid var(--text-mute);
   border-bottom:1px solid var(--text-mute);
   opacity:0.2;border-radius:0 0 2px 0;
+  pointer-events: none;
 }
 
-/* ── 3D FLIP ANIMATIONS ── */
+/* ── SLIDE ANIMATIONS (For PDF) ── */
+.slide-out-left { animation: slideOutLeft .25s ease-in forwards; }
+.slide-in-right { animation: slideInRight .25s ease-out forwards; }
+.slide-out-right { animation: slideOutRight .25s ease-in forwards; }
+.slide-in-left { animation: slideInLeft .25s ease-out forwards; }
 
-/* FORWARD: current page folds to left */
-.flip-out-fwd{
-  animation:flipOutFwd .28s ease-in forwards;
-  transform-origin:right center;
-}
-@keyframes flipOutFwd{
-  0%  {transform:perspective(900px) rotateY(0deg);opacity:1}
-  80% {transform:perspective(900px) rotateY(-75deg);opacity:.5}
-  100%{transform:perspective(900px) rotateY(-90deg);opacity:0}
-}
-/* FORWARD: new page comes in from right */
-.flip-in-fwd{
-  animation:flipInFwd .28s ease-out forwards;
-  transform-origin:left center;
-}
-@keyframes flipInFwd{
-  0%  {transform:perspective(900px) rotateY(90deg);opacity:0}
-  20% {transform:perspective(900px) rotateY(75deg);opacity:.5}
-  100%{transform:perspective(900px) rotateY(0deg);opacity:1}
-}
-
-/* BACKWARD: current page folds to right */
-.flip-out-bwd{
-  animation:flipOutBwd .28s ease-in forwards;
-  transform-origin:left center;
-}
-@keyframes flipOutBwd{
-  0%  {transform:perspective(900px) rotateY(0deg);opacity:1}
-  80% {transform:perspective(900px) rotateY(75deg);opacity:.5}
-  100%{transform:perspective(900px) rotateY(90deg);opacity:0}
-}
-/* BACKWARD: new page comes in from left */
-.flip-in-bwd{
-  animation:flipInBwd .28s ease-out forwards;
-  transform-origin:right center;
-}
-@keyframes flipInBwd{
-  0%  {transform:perspective(900px) rotateY(-90deg);opacity:0}
-  20% {transform:perspective(900px) rotateY(-75deg);opacity:.5}
-  100%{transform:perspective(900px) rotateY(0deg);opacity:1}
-}
+@keyframes slideOutLeft { to { transform: translateX(-30%); opacity: 0; } }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 1; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slideOutRight { to { transform: translateX(30%); opacity: 0; } }
+@keyframes slideInLeft { from { transform: translateX(-100%); opacity: 1; } to { transform: translateX(0); opacity: 1; } }
 
 /* ── TAP ZONES ── */
 .tap-left,.tap-right{
@@ -259,14 +221,21 @@ body{
 </div>
 
 <header class="header">
-  <button class="btn-back" onclick="goBack()"><span class="ms">arrow_back</span></button>
+  <button class="btn-icon" onclick="goBack()"><span class="ms">arrow_back</span></button>
+  <button class="btn-icon" id="btnRotate" onclick="rotatePDF()" style="display:none;"><span class="ms">screen_rotation</span></button>
   <div class="header-title" id="hTitle">—</div>
   <div class="header-page" id="hPage">0 / 0</div>
-  <button class="btn-settings" onclick="toggleSettings()"><span class="ms">tune</span></button>
+  <button class="btn-icon" onclick="toggleSettings()"><span class="ms">tune</span></button>
 </header>
 
 <div class="stage" id="stage">
+  <!-- PDF 용 -->
   <div class="page" id="pageEl"></div>
+  
+  <!-- TXT 용 (화면 분할 구조) -->
+  <div class="txt-scroller" id="txtScroller" style="display:none;">
+    <div class="txt-content" id="txtContent"></div>
+  </div>
 </div>
 
 <div class="tap-left" onclick="prevPage()"><span class="tap-arrow">chevron_left</span></div>
@@ -308,12 +277,14 @@ const EXT=FILE.split('.').pop().toLowerCase();
 const TITLE=params.get('title')||decodeURIComponent(FILE.replace(/^.*\//, '').replace(/\.[^.]+$/, ''));
 
 /* ── STATE ── */
+let isTXT = (EXT !== 'pdf');
 let pages=[];
 let cur=0;
 let total=0;
 let animating=false;
 let fontSize=parseInt(localStorage.getItem('coldlib_font')||'17');
 let theme=localStorage.getItem('coldlib_theme')||'light';
+let pdfRotation = 0; // PDF 회전 상태
 
 /* ── INIT ── */
 document.title=TITLE+' — ColdLib';
@@ -326,11 +297,13 @@ markActiveFont();markActiveTheme();
 async function load(){
   if(!FILE){showError('파일 정보가 없습니다.','index.html로 돌아가기','index.html');return;}
   try{
-    if(EXT==='pdf') await loadPDF();
-    else await loadTXT();
+    if(isTXT) await loadTXT();
+    else await loadPDF();
+    
     restorePosition();
     doneLoading();
-    renderPage(0);
+    
+    if(!isTXT) renderPDFPage(cur);
   }catch(e){
     showError('파일을 불러오지 못했습니다.<br>'+e.message,'돌아가기','index.html');
   }
@@ -338,92 +311,54 @@ async function load(){
 
 /* ── TXT ── */
 async function loadTXT(){
+  document.getElementById('pageEl').style.display = 'none';
+  const scroller = document.getElementById('txtScroller');
+  scroller.style.display = 'block';
+  
   const res=await fetch(FILE);
   if(!res.ok)throw new Error('HTTP '+res.status);
   const text=await res.text();
-  pages=await paginateTXT(text);
-  total=pages.length;
+  
+  document.getElementById('txtContent').textContent = text;
+  calcTxtPages();
 }
 
-function paginateTXT(text){
-  /* Split by --- chapter break */
-  const sections=text.split(/\n-{3,}\n/);
-  const allParas=[];
-  sections.forEach((sec,si)=>{
-    const paras=sec.split(/\n{2,}/).map(p=>p.trim()).filter(p=>p);
-    paras.forEach(p=>allParas.push({text:p,isChapter:false}));
-    if(si<sections.length-1) allParas.push({text:'✦',isChapter:true});
-  });
-
-  /* Measuring div — same size/font as actual page */
-  const pH=window.innerHeight-54; /* header + progress */
-  const pW=window.innerWidth;
-  const measure=document.createElement('div');
-  measure.style.cssText=`
-    position:fixed;top:-9999px;left:0;
-    width:${pW}px;height:${pH}px;
-    padding:28px 24px 24px;
-    font-family:'Nanum Myeongjo',Georgia,serif;
-    font-size:${fontSize}px;
-    line-height:1.95;
-    word-break:keep-all;
-    overflow:hidden;
-    box-sizing:border-box;
-    visibility:hidden;pointer-events:none;
-  `;
-  document.body.appendChild(measure);
-
-  const result=[];
-  let currentParas=[];
-
-  function fits(paras){
-    measure.innerHTML=renderParasHTML(paras);
-    return measure.scrollHeight<=measure.clientHeight+2;
-  }
-
-  for(const para of allParas){
-    const candidate=[...currentParas,para];
-    if(fits(candidate)){
-      currentParas=candidate;
-    }else{
-      if(currentParas.length>0){
-        result.push(currentParas);
-        currentParas=[para];
-      }else{
-        /* Single paragraph too long — add anyway */
-        result.push([para]);
-        currentParas=[];
-      }
-    }
-  }
-  if(currentParas.length>0) result.push(currentParas);
-  document.body.removeChild(measure);
-  return result;
+// 창 크기나 폰트가 변경되었을 때 전체 페이지 수 재계산
+function calcTxtPages() {
+  if (!isTXT) return;
+  const content = document.getElementById('txtContent');
+  
+  // 정확한 폭 측정을 위해 임시로 트랜스폼 초기화
+  content.style.transition = 'none';
+  content.style.transform = `translateX(0px)`;
+  
+  setTimeout(() => {
+    const scrollW = content.scrollWidth;
+    const clientW = window.innerWidth;
+    
+    total = Math.ceil(scrollW / clientW);
+    if(total === 0) total = 1;
+    if(cur >= total) cur = total - 1;
+    
+    content.style.transition = 'transform 0.25s ease-out';
+    updateTxtTransform();
+    updateUI();
+  }, 50);
 }
 
-function renderParasHTML(paras){
-  return paras.map(p=>{
-    if(p.isChapter){
-      return`<div style="text-align:center;padding:2em 0;color:var(--text-mute);font-size:.85em;letter-spacing:.5em">${p.text}</div>`;
-    }
-    if(p.text.startsWith('#')){
-      return`<div style="font-size:1.2em;font-weight:700;text-align:center;margin-bottom:1.2em;letter-spacing:.04em">${p.text.replace(/^#+\s*/,'')}</div>`;
-    }
-    return`<p style="margin-bottom:1.1em">${p.text.replace(/\n/g,'<br>')}</p>`;
-  }).join('');
-}
-
-function renderTXTPage(idx){
-  const el=document.getElementById('pageEl');
-  const paras=pages[idx];
-  el.innerHTML=`<div class="page-text">${renderParasHTML(paras)}</div>`;
+function updateTxtTransform() {
+  const content = document.getElementById('txtContent');
+  const clientW = window.innerWidth;
+  // 화면 너비만큼 컨테이너를 왼쪽으로 이동시킴
+  content.style.transform = `translateX(-${cur * clientW}px)`;
 }
 
 /* ── PDF ── */
 let pdfDoc=null;
-let pdfCanvases={};
 
 async function loadPDF(){
+  document.getElementById('btnRotate').style.display = 'flex'; // 회전 버튼 표시
+  
   if(typeof pdfjsLib==='undefined')throw new Error('PDF.js 로드 실패');
   pdfjsLib.GlobalWorkerOptions.workerSrc=
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -433,6 +368,7 @@ async function loadPDF(){
 }
 
 async function renderPDFPage(idx){
+  cur = idx;
   const el=document.getElementById('pageEl');
   el.innerHTML=`<div class="page-canvas"><canvas id="pdfCanvas"></canvas></div>`;
   const pageNum=pages[idx];
@@ -441,22 +377,27 @@ async function renderPDFPage(idx){
   const ctx=canvas.getContext('2d');
   const stageW=window.innerWidth;
   const stageH=window.innerHeight-54;
-  const vp=page.getViewport({scale:1});
-  const scale=Math.min(stageW/vp.width,stageH/vp.height)*0.92;
-  const viewport=page.getViewport({scale});
+  
+  // 회전 적용
+  const vpParams = { scale: 1, rotation: pdfRotation };
+  const vp=page.getViewport(vpParams);
+  const scale=Math.min(stageW/vp.width,stageH/vp.height)*0.95;
+  const viewport=page.getViewport({scale, rotation: pdfRotation});
+  
   canvas.width=viewport.width;
   canvas.height=viewport.height;
   await page.render({canvasContext:ctx,viewport}).promise;
-}
-
-/* ── RENDER ── */
-async function renderPage(idx){
-  cur=idx;
-  if(EXT==='pdf') await renderPDFPage(idx);
-  else renderTXTPage(idx);
+  
   updateUI();
 }
 
+function rotatePDF() {
+  if (isTXT) return;
+  pdfRotation = (pdfRotation + 90) % 360;
+  renderPDFPage(cur);
+}
+
+/* ── RENDER & UI ── */
 function updateUI(){
   document.getElementById('hPage').textContent=`${cur+1} / ${total}`;
   const pct=total>1?(cur/(total-1))*100:100;
@@ -469,21 +410,32 @@ function nextPage(){if(animating||cur>=total-1)return;flip(1);}
 function prevPage(){if(animating||cur<=0)return;flip(-1);}
 
 function flip(dir){
-  animating=true;
-  const el=document.getElementById('pageEl');
-  const outClass=dir>0?'flip-out-fwd':'flip-out-bwd';
-  const inClass=dir>0?'flip-in-fwd':'flip-in-bwd';
-
-  el.classList.add(outClass);
-  setTimeout(async()=>{
-    el.classList.remove(outClass);
-    cur+=dir;
-    if(EXT==='pdf') await renderPDFPage(cur);
-    else renderTXTPage(cur);
-    el.classList.add(inClass);
+  if(isTXT) {
+    // TXT는 CSS Transform을 이용해 부드럽게 슬라이드
+    cur += dir;
+    updateTxtTransform();
     updateUI();
-    setTimeout(()=>{el.classList.remove(inClass);animating=false;},290);
-  },290);
+    
+    // 연속 클릭 방지
+    animating = true;
+    setTimeout(() => { animating = false; }, 260);
+  } else {
+    // PDF는 요소 교체 방식이므로 CSS 애니메이션 적용
+    animating=true;
+    const el=document.getElementById('pageEl');
+    const outClass=dir>0?'slide-out-left':'slide-out-right';
+    const inClass=dir>0?'slide-in-right':'slide-in-left';
+
+    el.classList.add(outClass);
+    setTimeout(async()=>{
+      el.classList.remove(outClass);
+      cur+=dir;
+      await renderPDFPage(cur);
+      el.classList.add(inClass);
+      updateUI();
+      setTimeout(()=>{el.classList.remove(inClass);animating=false;},260);
+    },260);
+  }
 }
 
 /* ── SWIPE ── */
@@ -503,6 +455,17 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft')prevPage();
 });
 
+/* ── RESIZE HANDLING ── */
+window.addEventListener('resize', () => {
+  if (isTXT) {
+    clearTimeout(window.resizeTimer);
+    window.resizeTimer = setTimeout(calcTxtPages, 200);
+  } else {
+    clearTimeout(window.resizeTimer);
+    window.resizeTimer = setTimeout(() => { renderPDFPage(cur); }, 200);
+  }
+});
+
 /* ── SETTINGS ── */
 function toggleSettings(){document.getElementById('settingsOverlay').classList.toggle('on');}
 function closeSettings(e){if(e.target===document.getElementById('settingsOverlay'))document.getElementById('settingsOverlay').classList.remove('on');}
@@ -512,11 +475,9 @@ async function setFont(size){
   localStorage.setItem('coldlib_font',size);
   document.documentElement.style.setProperty('--fsize',size+'px');
   markActiveFont();
-  if(EXT!=='pdf'){
-    const approxPos=total>0?cur/total:0;
-    await loadTXT();
-    cur=Math.min(Math.round(approxPos*total),total-1);
-    renderPage(cur);
+  if(isTXT){
+    // 글자 크기 변경 시 페이징 재계산
+    calcTxtPages();
   }
 }
 
