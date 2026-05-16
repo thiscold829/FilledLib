@@ -147,7 +147,8 @@ function parseCSV(t){
   row.push(cur.replace(/\r/g,'').trim());rows.push(row);
   if(rows.length<2)return[];
   const h=rows[0];
-  return rows.slice(1).filter(r=>r.some(v=>v!=='')).map(r=>{const o={};h.forEach((k,i)=>o[k]=r[i]??'');return o;});
+  if(h[0]!=='id')return[];
+  return rows.slice(1).filter(r=>r[0]&&r[0]!=='').map(r=>{const o={};h.forEach((k,i)=>o[k]=r[i]??'');return o;});
 }
 
 async function fetchBooks(){
