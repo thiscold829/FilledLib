@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ColdLib</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet"/>
+<script src="config.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+:root{
+  --W:#d4a040;--WL:#e8bc58;--WLL:#f8d470;--WD:#a07828;--WS:#704e10;--WXS:#3a2608;
+  --GR:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1800' height='160'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008 0.85' numOctaves='6' seed='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  --PP:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' seed='9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  --page:#f5f0e2;--ink:#1a0c04;--cream:#f2e8d0;
+}
+body{font-family:'Pretendard',sans-serif;background-color:var(--W);background-image:var(--GR);background-blend-mode:soft-light;background-size:1800px 160px;overflow-x:hidden}
+.loading{position:fixed;inset:0;z-index:999;background:var(--W);background-image:var(--GR);background-blend-mode:soft-light;background-size:1800px 160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity 0.5s ease}
+.loading.gone{opacity:0;pointer-events:none}
+.loading-icon{font-family:'Material Symbols Outlined';font-size:48px;color:rgba(200,162,48,0.5);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0.9;transform:scale(1.08)}}
+.loading-text{font-size:11px;font-weight:800;letter-spacing:.28em;color:rgba(200,162,48,0.4);text-transform:uppercase}
+.err-box{display:none;position:fixed;inset:0;z-index:998;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:rgba(10,5,2,0.92)}
+.err-box.on{display:flex}
+.err-icon{font-family:'Material Symbols Outlined';font-size:40px;color:rgba(200,100,60,0.7)}
+.err-msg{font-size:13px;font-weight:600;color:rgba(240,200,150,0.7);letter-spacing:.04em;text-align:center}
+.room{height:calc(100vh - 24px);overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,0.14) transparent}
+.room::-webkit-scrollbar{width:3px}
+.room::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.14);border-radius:2px}
+.shelf{display:block}
+.s-back{display:flex;align-items:flex-end;gap:8px;padding:16px 10px 0;background-color:var(--WD);background-image:var(--GR),linear-gradient(180deg,rgba(0,0,0,0.2) 0%,transparent 70%);background-blend-mode:soft-light,normal;background-size:1800px 160px,100% 100%;position:relative;overflow:hidden}
+.s-back::before,.s-back::after{content:'';position:absolute;top:0;bottom:0;width:10px;z-index:3;pointer-events:none}
+.s-back::before{left:0;background:linear-gradient(90deg,rgba(0,0,0,0.22),transparent)}
+.s-back::after{right:0;background:linear-gradient(270deg,rgba(0,0,0,0.22),transparent)}
+.s-plank{height:24px;background-color:var(--WL);background-image:var(--GR),linear-gradient(180deg,var(--WLL) 0%,var(--WL) 20%,var(--W) 52%,var(--WD) 80%,var(--WS) 100%);background-blend-mode:soft-light,normal;background-size:1800px 24px,100% 100%;position:relative;box-shadow:inset 0 2px 0 rgba(255,255,255,0.32),0 12px 30px rgba(0,0,0,0.68),0 4px 10px rgba(0,0,0,0.46)}
+.s-plank::before{content:'';position:absolute;top:0;left:40px;right:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent)}
+.s-plank::after{content:'';position:absolute;bottom:-18px;left:0;right:0;height:18px;background:linear-gradient(180deg,rgba(0,0,0,0.15),transparent);pointer-events:none}
+.book{flex-shrink:0;cursor:pointer;position:relative;z-index:2;overflow:hidden;user-select:none;border-radius:2px 3px 3px 2px;box-shadow:3px 6px 16px rgba(0,0,0,0.55),1px 2px 4px rgba(0,0,0,0.28);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px 8px;gap:6px;transition:transform .28s cubic-bezier(0.16,1,0.3,1),box-shadow .28s ease}
+.book:hover{transform:translateY(-14px) scale(1.05);z-index:20;box-shadow:6px 20px 30px rgba(0,0,0,0.65),2px 4px 8px rgba(0,0,0,0.3)}
+.book .spine{position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(90deg,rgba(0,0,0,0.35),transparent);z-index:2;pointer-events:none}
+.book .pages{position:absolute;right:0;top:0;bottom:0;width:4px;background:rgba(230,222,200,0.7);z-index:2;pointer-events:none}
+.book .gloss{position:absolute;inset:0;pointer-events:none;z-index:3;mix-blend-mode:overlay;background:radial-gradient(ellipse 150% 95% at 12% -8%,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0.22) 32%,rgba(255,255,255,0) 60%),linear-gradient(180deg,rgba(255,255,255,0) 55%,rgba(0,0,0,0.12) 100%)}
+.bk-icon{font-family:'Material Symbols Outlined';font-size:32px;color:rgba(255,255,255,0.9);text-shadow:0 1px 6px rgba(0,0,0,0.4);line-height:1;flex-shrink:0;position:relative;z-index:4}
+.bk-ttl{font-size:9px;font-weight:800;color:rgba(255,255,255,0.96);text-align:center;line-height:1.28;text-shadow:0 1px 3px rgba(0,0,0,0.55);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex-shrink:0;max-height:36px;position:relative;z-index:4}
+.bk-aut{font-size:6.5px;font-weight:600;color:rgba(255,255,255,0.5);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;flex-shrink:0;position:relative;z-index:4}
+.bd{position:fixed;inset:0;z-index:200;background:rgba(4,2,0,0.84);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);opacity:0;pointer-events:none;transition:opacity 0.35s ease}
+.bd.on{opacity:1;pointer-events:all}
+.ob-scene{position:fixed;z-index:300;perspective:1200px;display:none}
+.ob-card{width:100%;height:100%;transform-style:preserve-3d}
+.ob-card.flipped{transform:rotateY(180deg)}
+.ob-front{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:inherit;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 12px;gap:10px}
+.ob-front .spine{position:absolute;left:0;top:0;bottom:0;width:10px;background:linear-gradient(90deg,rgba(0,0,0,0.45),transparent);z-index:2;pointer-events:none}
+.ob-front .pages{position:absolute;right:0;top:0;bottom:0;width:6px;background:rgba(230,222,200,0.75);z-index:2;pointer-events:none}
+.ob-front .gloss{position:absolute;inset:0;pointer-events:none;z-index:3;mix-blend-mode:overlay;background:radial-gradient(ellipse 150% 95% at 12% -8%,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0.22) 32%,rgba(255,255,255,0) 60%),linear-gradient(180deg,rgba(255,255,255,0) 55%,rgba(0,0,0,0.14) 100%)}
+.front-icon{font-family:'Material Symbols Outlined';font-size:56px;color:rgba(255,255,255,0.86);text-shadow:0 2px 14px rgba(0,0,0,0.5);line-height:1;position:relative;z-index:4}
+.front-rule{width:62%;height:1px;flex-shrink:0;position:relative;z-index:4;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.32),transparent)}
+.front-ttl{font-family:'Cinzel',serif;font-size:clamp(.9rem,2vw,1.2rem);color:rgba(255,255,255,0.92);text-align:center;line-height:1.4;text-shadow:0 1px 10px rgba(0,0,0,0.65);position:relative;z-index:4}
+.front-auth{font-size:10px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:.14em;text-transform:uppercase;position:relative;z-index:4}
+.ob-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);border-radius:inherit;overflow:hidden;display:flex;flex-direction:column}
+.ob-back .back-bg{position:absolute;inset:0;filter:brightness(0.7)}
+.ob-back .back-texture{position:absolute;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.04) 0,rgba(0,0,0,0.04) 1px,transparent 1px,transparent 24px)}
+.ob-back .back-spine{position:absolute;right:0;top:0;bottom:0;width:10px;z-index:2;pointer-events:none;background:linear-gradient(270deg,rgba(0,0,0,0.45),transparent)}
+.ob-back .back-pages{position:absolute;left:0;top:0;bottom:0;width:6px;z-index:2;pointer-events:none;background:rgba(230,222,200,0.6)}
+.back-content{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;padding:clamp(18px,3vh,30px) clamp(18px,3vw,28px);color:rgba(245,235,210,0.95);overflow-y:auto}
+.back-genre{display:inline-block;font-size:8px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.82);background:rgba(255,255,255,0.14);padding:3px 11px;border-radius:99px;margin-bottom:14px;align-self:flex-start}
+.back-title{font-family:'Cinzel',serif;font-size:clamp(.95rem,2.2vw,1.3rem);color:rgba(255,255,255,0.96);line-height:1.35;margin-bottom:5px}
+.back-author{font-size:11px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:.05em;margin-bottom:18px}
+.back-rule{height:1px;margin-bottom:16px;background:linear-gradient(90deg,rgba(255,255,255,0.2),rgba(255,255,255,0.06),transparent)}
+.back-summary{font-size:clamp(12px,1.5vw,13.5px);line-height:1.82;color:rgba(240,225,195,0.88);font-weight:400;font-style:italic;flex:1;margin-bottom:20px;padding-left:14px;border-left:2px solid rgba(255,255,255,0.15)}
+.back-meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px}
+.bmi{display:flex;flex-direction:column;gap:2px}
+.bml{font-size:7.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,0.32)}
+.bmv{font-size:13px;font-weight:700;color:rgba(255,255,255,0.88)}
+.back-actions{display:flex;gap:10px}
+.btn-read{flex:1;padding:13px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:rgba(255,255,255,0.95);border-radius:10px;font-family:'Cinzel',serif;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:.24s;display:flex;align-items:center;justify-content:center;gap:7px;backdrop-filter:blur(8px)}
+.btn-read:hover{background:rgba(255,255,255,0.2);transform:translateY(-2px)}
+.btn-read .ms{font-family:'Material Symbols Outlined';font-size:16px}
+.btn-cls{width:44px;height:44px;border-radius:10px;flex-shrink:0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Outlined';font-size:18px;color:rgba(255,255,255,0.55);transition:.2s}
+.btn-cls:hover{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9)}
+.back-barcode{position:absolute;bottom:14px;right:16px;z-index:4;display:flex;flex-direction:column;align-items:flex-end;gap:3px;opacity:0.22}
+.barcode-lines{display:flex;gap:1px;height:26px;align-items:flex-end}
+.barcode-lines span{display:block;background:rgba(255,255,255,0.8);width:2px}
+footer{position:relative;z-index:1;height:24px;display:flex;align-items:center;justify-content:center;background-color:var(--WXS);background-image:var(--GR),linear-gradient(180deg,rgba(0,0,0,0.5),rgba(0,0,0,0.38));background-blend-mode:soft-light,normal;background-size:1800px 24px,100% 100%;box-shadow:inset 0 2px 7px rgba(0,0,0,0.5)}
+footer span{font-size:8.5px;font-weight:900;letter-spacing:.32em;color:rgba(200,162,48,0.16);text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="loading" id="loading">
+  <span class="loading-icon">auto_stories</span>
+  <div class="loading-text">서고를 열고 있습니다</div>
+</div>
+<div class="err-box" id="errBox">
+  <span class="err-icon">error</span>
+  <div class="err-msg" id="errMsg"></div>
+</div>
+<div class="room" id="room"></div>
+<div class="bd" id="bd" onclick="closeBook()"></div>
+<div class="ob-scene" id="obScene">
+  <div class="ob-card" id="obCard">
+    <div class="ob-front" id="obFront">
+      <div class="spine"></div><div class="pages"></div><div class="gloss"></div>
+      <span class="front-icon" id="fIc">language</span>
+      <div class="front-rule"></div>
+      <div class="front-ttl" id="fTi"></div>
+      <div class="front-auth" id="fAu"></div>
+    </div>
+    <div class="ob-back">
+      <div class="back-bg" id="bBg"></div>
+      <div class="back-texture"></div><div class="back-spine"></div><div class="back-pages"></div>
+      <div class="back-content">
+        <div class="back-genre" id="bGn"></div>
+        <div class="back-title" id="bTi"></div>
+        <div class="back-author" id="bAu"></div>
+        <div class="back-rule"></div>
+        <div class="back-summary" id="bSm"></div>
+        <div class="back-meta">
+          <div class="bmi"><span class="bml">연도</span><span class="bmv" id="bY">—</span></div>
+          <div class="bmi"><span class="bml">페이지</span><span class="bmv" id="bP">—</span></div>
+          <div class="bmi"><span class="bml">글자수</span><span class="bmv" id="bW">—</span></div>
+        </div>
+        <div class="back-actions">
+          <button class="btn-read" id="btnR"><span class="ms">import_contacts</span>Open Manuscript</button>
+          <button class="btn-cls" onclick="closeBook()">close</button>
+        </div>
+      </div>
+      <div class="back-barcode"><div class="barcode-lines" id="bcLines"></div></div>
+    </div>
+  </div>
+</div>
+<footer><span>ColdLib</span></footer>
+<script>
+const SHEET_ID=(typeof CONFIG!=='undefined')?CONFIG.SHEET_ID:'';
+let BOOKS=[],sel=-1,busy=false;
+
+function parseCSV(t){
+  const rows=[];let row=[],cur='',q=false;
+  for(let i=0;i<t.length;i++){
+    const c=t[i],nc=t[i+1];
+    if(c==='"'){if(q&&nc==='"'){cur+='"';i++;}else q=!q;}
+    else if(c===','&&!q){row.push(cur.replace(/\r/g,'').trim());cur='';}
+    else if(c==='\n'&&!q){row.push(cur.replace(/\r/g,'').trim());rows.push(row);row=[];cur='';}
+    else cur+=c;
+  }
+  row.push(cur.replace(/\r/g,'').trim());rows.push(row);
+  if(rows.length<2)return[];
+  const h=rows[0];
+  return rows.slice(1).filter(r=>r.some(v=>v!=='')).map(r=>{const o={};h.forEach((k,i)=>o[k]=r[i]??'');return o;});
+}
+
+async function fetchBooks(){
+  if(!SHEET_ID){showErr('config.js에 SHEET_ID가 없습니다.');return;}
+  try{
+    const res=await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=books`);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    BOOKS=parseCSV(await res.text());
+    doneLoading();render();
+  }catch(e){showErr('불러오기 실패: '+e.message);}
+}
+
+function doneLoading(){const l=document.getElementById('loading');l.classList.add('gone');setTimeout(()=>l.style.display='none',600);}
+function showErr(m){doneLoading();document.getElementById('errMsg').textContent=m;document.getElementById('errBox').classList.add('on');}
+
+function hex2rgb(h){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return isNaN(r)?null:{r,g,b};}
+function lighter(c,a){const x=hex2rgb(c);return x?`rgb(${Math.min(255,x.r+a)},${Math.min(255,x.g+a)},${Math.min(255,x.b+a)})`:c;}
+function layout(){const vw=window.innerWidth,n=vw>=1024?7:vw>=768?6:vw>=540?5:vw>=380?4:3,bw=Math.floor((vw-20-8*(n-1))/n),bh=Math.round(bw*1.38);return{n,bw,bh};}
+
+function render(){
+  const room=document.getElementById('room');
+  if(!BOOKS.length){room.innerHTML='<div style="text-align:center;padding:80px 20px;color:rgba(200,162,48,0.4)"><span style="font-family:Material Symbols Outlined;font-size:48px;display:block;margin-bottom:16px">menu_book</span><div style="font-size:13px;font-weight:600">등록된 책이 없습니다</div></div>';return;}
+  const{n,bw,bh}=layout();let h='';
+  for(let i=0;i<BOOKS.length;i+=n){
+    const row=BOOKS.slice(i,i+n);
+    h+=`<div class="shelf"><div class="s-back">`;
+    row.forEach((b,j)=>{
+      const idx=i+j,col=b.bg_color||'#3a2010',bg=`linear-gradient(180deg,${lighter(col,30)} 0%,${col} 55%)`,icon=b.icon||'language';
+      h+=`<div class="book" id="b${idx}" style="background:${bg};width:${bw}px;height:${bh}px" onclick="openBook(${idx})">
+        <div class="spine"></div><div class="pages"></div><div class="gloss"></div>
+        <span class="bk-icon">${icon}</span>
+        <div class="bk-ttl">${b.title||''}</div>
+        <div class="bk-aut">${b.author||''}</div>
+      </div>`;
+    });
+    h+=`</div><div class="s-plank"></div></div>`;
+  }
+  room.innerHTML=h;
+}
+
+function openBook(idx){
+  if(busy)return;busy=true;sel=idx;
+  const b=BOOKS[idx],col=b.bg_color||'#3a2010',bg=`linear-gradient(180deg,${lighter(col,30)} 0%,${col} 55%)`,icon=b.icon||'language';
+  document.getElementById('obFront').style.background=bg;
+  document.getElementById('fIc').textContent=icon;
+  document.getElementById('fTi').textContent=b.title||'';
+  document.getElementById('fAu').textContent=b.author?'— '+b.author:'';
+  document.getElementById('bBg').style.background=col;
+  document.getElementById('bGn').textContent=b.genre||'General';
+  document.getElementById('bTi').textContent=b.title||'';
+  document.getElementById('bAu').textContent=b.author?'— '+b.author:'';
+  document.getElementById('bY').textContent=b.year||'—';
+  document.getElementById('bP').textContent=b.pages?b.pages+'p':'—';
+  const wc=parseInt(b.wordcount);
+  document.getElementById('bW').textContent=(!isNaN(wc)&&wc>0)?wc.toLocaleString()+'자':'—';
+  document.getElementById('bSm').textContent=b.summary||'';
+  document.getElementById('btnR').onclick=()=>{if(b.filename&&b.filename.trim())window.location.href=b.filename.trim();else alert('파일 정보가 없습니다.');};
+  const vw=window.innerWidth,vh=window.innerHeight,tH=Math.min(480,vh-80),tW=Math.round(tH*0.66),tL=(vw-tW)/2,tT=(vh-tH)/2;
+  const rect=document.getElementById('b'+idx).getBoundingClientRect();
+  const scene=document.getElementById('obScene'),card=document.getElementById('obCard');
+  card.style.transition='none';card.classList.remove('flipped');
+  scene.style.cssText=`display:block;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;border-radius:2px 3px 3px 2px;transition:none;`;
+  document.getElementById('bd').classList.add('on');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    scene.style.cssText=`display:block;left:${tL}px;top:${tT}px;width:${tW}px;height:${tH}px;border-radius:4px 10px 10px 4px;box-shadow:0 40px 80px rgba(0,0,0,0.75),0 10px 30px rgba(0,0,0,0.45);transition:left .52s cubic-bezier(0.16,1,0.3,1),top .52s cubic-bezier(0.16,1,0.3,1),width .52s cubic-bezier(0.16,1,0.3,1),height .52s cubic-bezier(0.16,1,0.3,1),border-radius .52s cubic-bezier(0.16,1,0.3,1);`;
+  }));
+  setTimeout(()=>{card.style.transition='transform 0.7s cubic-bezier(0.16,1,0.3,1)';card.classList.add('flipped');setTimeout(()=>busy=false,750);},580);
+}
+
+function closeBook(){
+  if(busy)return;busy=true;
+  const scene=document.getElementById('obScene'),card=document.getElementById('obCard');
+  card.style.transition='transform 0.45s cubic-bezier(0.4,0,0.6,1)';card.classList.remove('flipped');
+  setTimeout(()=>{
+    document.getElementById('bd').classList.remove('on');
+    scene.style.transition='transform 0.3s ease,opacity 0.3s ease';scene.style.transform='scale(0.85)';scene.style.opacity='0';
+    setTimeout(()=>{scene.style.cssText='display:none;';scene.style.transform='';scene.style.opacity='';sel=-1;busy=false;},320);
+  },460);
+}
+
+const bh=[28,20,32,18,28,22,34,16,28,24,30,18,26,22,32,20,28,26,30,18,24];
+document.getElementById('bcLines').innerHTML=bh.map(v=>`<span style="height:${v}px"></span>`).join('');
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(render,250)});
+fetchBooks();
+</script>
+</body>
+</html>
