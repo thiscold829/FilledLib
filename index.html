@@ -38,51 +38,148 @@ body{font-family:'Pretendard',sans-serif;background-color:var(--W);background-im
 .s-plank{height:24px;background-color:var(--WL);background-image:var(--GR),linear-gradient(180deg,var(--WLL) 0%,var(--WL) 20%,var(--W) 52%,var(--WD) 80%,var(--WS) 100%);background-blend-mode:soft-light,normal;background-size:1800px 24px,100% 100%;position:relative;box-shadow:inset 0 2px 0 rgba(255,255,255,0.32),0 12px 30px rgba(0,0,0,0.68),0 4px 10px rgba(0,0,0,0.46)}
 .s-plank::before{content:'';position:absolute;top:0;left:40px;right:40px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent)}
 .s-plank::after{content:'';position:absolute;bottom:-18px;left:0;right:0;height:18px;background:linear-gradient(180deg,rgba(0,0,0,0.15),transparent);pointer-events:none}
-.book{flex-shrink:0;cursor:pointer;position:relative;z-index:2;overflow:hidden;user-select:none;border-radius:2px 3px 3px 2px;box-shadow:3px 6px 16px rgba(0,0,0,0.55),1px 2px 4px rgba(0,0,0,0.28);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px 8px;gap:6px;transition:transform .28s cubic-bezier(0.16,1,0.3,1),box-shadow .28s ease}
-.book:hover{transform:translateY(-14px) scale(1.05);z-index:20;box-shadow:6px 20px 30px rgba(0,0,0,0.65),2px 4px 8px rgba(0,0,0,0.3)}
-.book .spine{position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(90deg,rgba(0,0,0,0.35),transparent);z-index:2;pointer-events:none}
-.book .pages{position:absolute;right:0;top:0;bottom:0;width:4px;background:rgba(230,222,200,0.7);z-index:2;pointer-events:none}
-.book .gloss{position:absolute;inset:0;pointer-events:none;z-index:3;mix-blend-mode:overlay;background:radial-gradient(ellipse 150% 95% at 12% -8%,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0.22) 32%,rgba(255,255,255,0) 60%),linear-gradient(180deg,rgba(255,255,255,0) 55%,rgba(0,0,0,0.12) 100%)}
-.bk-icon{font-family:'Material Symbols Outlined';font-size:32px;color:rgba(255,255,255,0.9);text-shadow:0 1px 6px rgba(0,0,0,0.4);line-height:1;flex-shrink:0;position:relative;z-index:4}
-.bk-ttl{font-size:9px;font-weight:800;color:rgba(255,255,255,0.96);text-align:center;line-height:1.28;text-shadow:0 1px 3px rgba(0,0,0,0.55);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex-shrink:0;max-height:36px;position:relative;z-index:4}
-.bk-aut{font-size:6.5px;font-weight:600;color:rgba(255,255,255,0.5);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;flex-shrink:0;position:relative;z-index:4}
+
+/* --- BOOK DESIGN (Skeuomorphic Enhancements) --- */
+.book{
+  flex-shrink:0;cursor:pointer;position:relative;z-index:2;
+  border-radius:2px 5px 5px 2px; /* 입체적인 모서리 */
+  box-shadow: 
+    inset 4px 0 10px rgba(0,0,0,0.15), /* 안쪽 음영 */
+    inset -1px 0 2px rgba(255,255,255,0.3), /* 우측 하이라이트 */
+    -2px 6px 12px rgba(0,0,0,0.5), /* 바닥 그림자 */
+    1px 2px 4px rgba(0,0,0,0.3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:10px 8px 8px;gap:6px;
+  transition:transform .28s cubic-bezier(0.16,1,0.3,1),box-shadow .28s ease;
+}
+.book:hover{
+  transform:translateY(-14px) scale(1.05);z-index:20;
+  box-shadow: 
+    inset 4px 0 10px rgba(0,0,0,0.15), 
+    inset -1px 0 2px rgba(255,255,255,0.3), 
+    -4px 20px 24px rgba(0,0,0,0.6), 
+    2px 8px 12px rgba(0,0,0,0.3);
+}
+/* 표지 광택 (애플 잡지 느낌) */
+.book .gloss, .ob-front .gloss {
+  position:absolute;inset:0;pointer-events:none;z-index:3;
+  background: linear-gradient(
+    105deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.1) 2%,
+    rgba(255,255,255,0.5) 6%,
+    rgba(255,255,255,0) 15%,
+    rgba(255,255,255,0) 80%,
+    rgba(255,255,255,0.1) 100%
+  );
+  mix-blend-mode: screen;
+}
+/* 책등(Spine) 접히는 홈 구현 */
+.book .spine-crease, .ob-front .spine-crease {
+  position:absolute;left:6px;top:0;bottom:0;width:4px;
+  background:linear-gradient(90deg, rgba(0,0,0,0.4), transparent);
+  z-index:4;pointer-events:none;
+}
+.book .spine, .ob-front .spine {
+  position:absolute;left:0;top:0;bottom:0;width:6px;
+  background:linear-gradient(90deg, rgba(0,0,0,0.5), rgba(255,255,255,0.2));
+  z-index:4;pointer-events:none;
+}
+/* 종이 부분(우측면) */
+.book .pages, .ob-front .pages{
+  position:absolute;right:0;top:0;bottom:0;width:3px;
+  background:repeating-linear-gradient(180deg, #e6dec8 0, #e6dec8 2px, #d4cbaf 3px);
+  z-index:2;pointer-events:none;
+  border-left: 1px solid rgba(0,0,0,0.1);
+}
+
+.bk-icon{font-family:'Material Symbols Outlined';font-size:32px;color:rgba(255,255,255,0.9);text-shadow:0 1px 6px rgba(0,0,0,0.4);line-height:1;flex-shrink:0;position:relative;z-index:5}
+.bk-ttl{font-size:9px;font-weight:800;color:rgba(255,255,255,0.96);text-align:center;line-height:1.28;text-shadow:0 1px 3px rgba(0,0,0,0.55);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex-shrink:0;max-height:36px;position:relative;z-index:5}
+.bk-aut{font-size:6.5px;font-weight:600;color:rgba(255,255,255,0.5);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;flex-shrink:0;position:relative;z-index:5}
 .bd{position:fixed;inset:0;z-index:200;background:rgba(4,2,0,0.84);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);opacity:0;pointer-events:none;transition:opacity 0.35s ease}
 .bd.on{opacity:1;pointer-events:all}
-.ob-scene{position:fixed;z-index:300;perspective:1200px;display:none}
-.ob-card{width:100%;height:100%;transform-style:preserve-3d}
+
+/* --- 3D FLIP SCENE --- */
+.ob-scene{position:fixed;z-index:300;perspective:1500px;display:none}
+.ob-card{width:100%;height:100%;transform-style:preserve-3d; border-radius: 4px 10px 10px 4px;}
 .ob-card.flipped{transform:rotateY(180deg)}
-.ob-front{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:inherit;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 12px;gap:10px}
-.ob-front .spine{position:absolute;left:0;top:0;bottom:0;width:10px;background:linear-gradient(90deg,rgba(0,0,0,0.45),transparent);z-index:2;pointer-events:none}
-.ob-front .pages{position:absolute;right:0;top:0;bottom:0;width:6px;background:rgba(230,222,200,0.75);z-index:2;pointer-events:none}
-.ob-front .gloss{position:absolute;inset:0;pointer-events:none;z-index:3;mix-blend-mode:overlay;background:radial-gradient(ellipse 150% 95% at 12% -8%,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0.22) 32%,rgba(255,255,255,0) 60%),linear-gradient(180deg,rgba(255,255,255,0) 55%,rgba(0,0,0,0.14) 100%)}
-.front-icon{font-family:'Material Symbols Outlined';font-size:56px;color:rgba(255,255,255,0.86);text-shadow:0 2px 14px rgba(0,0,0,0.5);line-height:1;position:relative;z-index:4}
-.front-rule{width:62%;height:1px;flex-shrink:0;position:relative;z-index:4;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.32),transparent)}
-.front-ttl{font-family:'Cinzel',serif;font-size:clamp(.9rem,2vw,1.2rem);color:rgba(255,255,255,0.92);text-align:center;line-height:1.4;text-shadow:0 1px 10px rgba(0,0,0,0.65);position:relative;z-index:4}
-.front-auth{font-size:10px;font-weight:600;color:rgba(255,255,255,0.38);letter-spacing:.14em;text-transform:uppercase;position:relative;z-index:4}
-.ob-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);border-radius:inherit;overflow:hidden;display:flex;flex-direction:column}
-.ob-back .back-bg{position:absolute;inset:0;filter:brightness(0.7)}
-.ob-back .back-texture{position:absolute;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.04) 0,rgba(0,0,0,0.04) 1px,transparent 1px,transparent 24px)}
-.ob-back .back-spine{position:absolute;right:0;top:0;bottom:0;width:10px;z-index:2;pointer-events:none;background:linear-gradient(270deg,rgba(0,0,0,0.45),transparent)}
-.ob-back .back-pages{position:absolute;left:0;top:0;bottom:0;width:6px;z-index:2;pointer-events:none;background:rgba(230,222,200,0.6)}
-.back-content{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;padding:clamp(18px,3vh,30px) clamp(18px,3vw,28px);color:rgba(245,235,210,0.95);overflow-y:auto}
-.back-genre{display:inline-block;font-size:8px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.82);background:rgba(255,255,255,0.14);padding:3px 11px;border-radius:99px;margin-bottom:14px;align-self:flex-start}
-.back-title{font-family:'Cinzel',serif;font-size:clamp(.95rem,2.2vw,1.3rem);color:rgba(255,255,255,0.96);line-height:1.35;margin-bottom:5px}
-.back-author{font-size:11px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:.05em;margin-bottom:18px}
-.back-rule{height:1px;margin-bottom:16px;background:linear-gradient(90deg,rgba(255,255,255,0.2),rgba(255,255,255,0.06),transparent)}
-.back-summary{font-size:clamp(12px,1.5vw,13.5px);line-height:1.82;color:rgba(240,225,195,0.88);font-weight:400;font-style:italic;flex:1;margin-bottom:20px;padding-left:14px;border-left:2px solid rgba(255,255,255,0.15)}
-.back-meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px}
-.bmi{display:flex;flex-direction:column;gap:2px}
-.bml{font-size:7.5px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,0.32)}
-.bmv{font-size:13px;font-weight:700;color:rgba(255,255,255,0.88)}
-.back-actions{display:flex;gap:10px}
-.btn-read{flex:1;padding:13px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:rgba(255,255,255,0.95);border-radius:10px;font-family:'Cinzel',serif;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:.24s;display:flex;align-items:center;justify-content:center;gap:7px;backdrop-filter:blur(8px)}
-.btn-read:hover{background:rgba(255,255,255,0.2);transform:translateY(-2px)}
-.btn-read .ms{font-family:'Material Symbols Outlined';font-size:16px}
-.btn-cls{width:44px;height:44px;border-radius:10px;flex-shrink:0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Outlined';font-size:18px;color:rgba(255,255,255,0.55);transition:.2s}
-.btn-cls:hover{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.9)}
-.back-barcode{position:absolute;bottom:14px;right:16px;z-index:4;display:flex;flex-direction:column;align-items:flex-end;gap:3px;opacity:0.22}
-.barcode-lines{display:flex;gap:1px;height:26px;align-items:flex-end}
-.barcode-lines span{display:block;background:rgba(255,255,255,0.8);width:2px}
+
+.ob-front{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:inherit;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 12px;gap:10px;
+  box-shadow: inset 4px 0 10px rgba(0,0,0,0.15), inset -1px 0 2px rgba(255,255,255,0.3);
+}
+.ob-front .spine { width: 10px; }
+.ob-front .spine-crease { left: 10px; width: 6px; }
+.ob-front .pages { width: 5px; }
+
+.front-icon{font-family:'Material Symbols Outlined';font-size:56px;color:rgba(255,255,255,0.86);text-shadow:0 2px 14px rgba(0,0,0,0.5);line-height:1;position:relative;z-index:5}
+.front-rule{width:62%;height:1px;flex-shrink:0;position:relative;z-index:5;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.5),transparent)}
+.front-ttl{font-family:'Cinzel',serif;font-size:clamp(.9rem,2vw,1.2rem);color:rgba(255,255,255,0.95);text-align:center;line-height:1.4;text-shadow:0 1px 10px rgba(0,0,0,0.65);position:relative;z-index:5}
+.front-auth{font-size:10px;font-weight:600;color:rgba(255,255,255,0.45);letter-spacing:.14em;text-transform:uppercase;position:relative;z-index:5}
+
+/* --- FLIPPED BACK (정보 페이지 구조 전면 수정) --- */
+.ob-back{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  transform:rotateY(180deg);border-radius:10px 4px 4px 10px;overflow:hidden;
+  background: #1a1a1a; /* 기본 백그라운드 어둡게 */
+  box-shadow: inset -4px 0 10px rgba(0,0,0,0.3), inset 1px 0 2px rgba(255,255,255,0.1);
+}
+.ob-back .back-bg{position:absolute;inset:0;filter:brightness(0.25) saturate(0.8); z-index:0;} /* 표지 색상을 아주 어둡게 깔아줌 */
+.ob-back .back-texture{position:absolute;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,0.02) 0,rgba(255,255,255,0.02) 1px,transparent 1px,transparent 24px)}
+.ob-back .back-spine{position:absolute;right:0;top:0;bottom:0;width:10px;z-index:2;pointer-events:none;background:linear-gradient(270deg,rgba(0,0,0,0.6),transparent)}
+.ob-back .back-pages{position:absolute;left:0;top:0;bottom:0;width:5px;z-index:2;pointer-events:none;background:repeating-linear-gradient(180deg, #d4cbaf 0, #d4cbaf 2px, #b8b098 3px); border-right: 1px solid rgba(0,0,0,0.2);}
+
+/* Flex 레이아웃으로 겹침 완벽 방지 */
+.back-content{
+  position:relative;z-index:3;
+  display:flex;flex-direction:column;
+  height:100%; width: 100%;
+  padding:clamp(20px, 4vh, 36px) clamp(20px, 4vw, 32px);
+  color:rgba(255,255,255,0.9);
+  box-sizing: border-box;
+}
+
+/* 상단 헤더 영역 */
+.back-header { flex-shrink: 0; margin-bottom: 16px; }
+.back-genre{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.9);background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:99px;margin-bottom:12px;backdrop-filter: blur(4px);}
+.back-title{font-family:'Cinzel',serif;font-size:clamp(1.1rem, 2.5vw, 1.5rem);color:rgba(255,255,255,0.98);line-height:1.3;margin-bottom:6px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);}
+.back-author{font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);letter-spacing:.05em;}
+.back-rule{height:1px;background:linear-gradient(90deg,rgba(255,255,255,0.3),transparent); margin-top: 16px; flex-shrink: 0;}
+
+/* 중앙 스크롤 영역 (줄거리) */
+.back-summary{
+  flex: 1 1 auto; /* 남은 공간 차지하며 필요시 축소/확대 */
+  overflow-y: auto; /* 핵심: 내용이 길면 여기서만 스크롤 됨 */
+  font-size:clamp(13px, 1.6vw, 15px);
+  line-height:1.7;
+  color:rgba(255,255,255,0.8);
+  font-weight:400;
+  margin: 16px 0;
+  padding-right: 8px; /* 스크롤바 여백 */
+}
+/* 웹킷 스크롤바 커스텀 (정보창 내부) */
+.back-summary::-webkit-scrollbar { width: 4px; }
+.back-summary::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+/* 하단 정보 및 버튼 영역 */
+.back-footer { flex-shrink: 0; }
+.back-meta{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px; padding: 12px 16px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);}
+.bmi{display:flex;flex-direction:column;gap:4px}
+.bml{font-size:8px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.4)}
+.bmv{font-size:14px;font-weight:700;color:rgba(255,255,255,0.95)}
+
+.back-actions{display:flex;gap:12px; align-items: center;}
+.btn-read{flex:1;padding:14px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,1);border-radius:8px;font-family:'Cinzel',serif;font-size:12px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;backdrop-filter:blur(8px)}
+.btn-read:hover{background:rgba(255,255,255,0.25);transform:translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3);}
+.btn-read .ms{font-family:'Material Symbols Outlined';font-size:18px}
+.btn-cls{width:46px;height:46px;border-radius:8px;flex-shrink:0;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.7);transition:.2s}
+.btn-cls:hover{background:rgba(255,255,255,0.2);color:rgba(255,255,255,1); transform:translateY(-2px);}
+
+.back-barcode{position:absolute;top:20px;right:20px;z-index:4;display:flex;flex-direction:column;align-items:flex-end;gap:3px;opacity:0.3}
+.barcode-lines{display:flex;gap:1px;height:24px;align-items:flex-end}
+.barcode-lines span{display:block;background:rgba(255,255,255,1);width:2px}
+
 footer{position:relative;z-index:1;height:24px;display:flex;align-items:center;justify-content:center;background-color:var(--WXS);background-image:var(--GR),linear-gradient(180deg,rgba(0,0,0,0.5),rgba(0,0,0,0.38));background-blend-mode:soft-light,normal;background-size:1800px 24px,100% 100%;box-shadow:inset 0 2px 7px rgba(0,0,0,0.5)}
 footer span{font-size:8.5px;font-weight:900;letter-spacing:.32em;color:rgba(200,162,48,0.16);text-transform:uppercase}
 </style>
@@ -101,7 +198,7 @@ footer span{font-size:8.5px;font-weight:900;letter-spacing:.32em;color:rgba(200,
 <div class="ob-scene" id="obScene">
   <div class="ob-card" id="obCard">
     <div class="ob-front" id="obFront">
-      <div class="spine"></div><div class="pages"></div><div class="gloss"></div>
+      <div class="spine"></div><div class="spine-crease"></div><div class="pages"></div><div class="gloss"></div>
       <span class="front-icon" id="fIc">language</span>
       <div class="front-rule"></div>
       <div class="front-ttl" id="fTi"></div>
@@ -110,23 +207,27 @@ footer span{font-size:8.5px;font-weight:900;letter-spacing:.32em;color:rgba(200,
     <div class="ob-back">
       <div class="back-bg" id="bBg"></div>
       <div class="back-texture"></div><div class="back-spine"></div><div class="back-pages"></div>
+      <div class="back-barcode"><div class="barcode-lines" id="bcLines"></div></div>
       <div class="back-content">
-        <div class="back-genre" id="bGn"></div>
-        <div class="back-title" id="bTi"></div>
-        <div class="back-author" id="bAu"></div>
-        <div class="back-rule"></div>
-        <div class="back-summary" id="bSm"></div>
-        <div class="back-meta">
-          <div class="bmi"><span class="bml">연도</span><span class="bmv" id="bY">—</span></div>
-          <div class="bmi"><span class="bml">페이지</span><span class="bmv" id="bP">—</span></div>
-          <div class="bmi"><span class="bml">글자수</span><span class="bmv" id="bW">—</span></div>
+        <div class="back-header">
+          <div class="back-genre" id="bGn"></div>
+          <div class="back-title" id="bTi"></div>
+          <div class="back-author" id="bAu"></div>
+          <div class="back-rule"></div>
         </div>
-        <div class="back-actions">
-          <button class="btn-read" id="btnR"><span class="ms">import_contacts</span>Open Manuscript</button>
-          <button class="btn-cls" onclick="closeBook()"><span style="font-family:'Material Symbols Outlined';font-size:18px;color:rgba(255,255,255,0.55)">close</span></button>
+        <div class="back-summary" id="bSm"></div>
+        <div class="back-footer">
+          <div class="back-meta">
+            <div class="bmi"><span class="bml">연도</span><span class="bmv" id="bY">—</span></div>
+            <div class="bmi"><span class="bml">페이지</span><span class="bmv" id="bP">—</span></div>
+            <div class="bmi"><span class="bml">글자수</span><span class="bmv" id="bW">—</span></div>
+          </div>
+          <div class="back-actions">
+            <button class="btn-read" id="btnR"><span class="ms">import_contacts</span>Open Manuscript</button>
+            <button class="btn-cls" onclick="closeBook()"><span class="ms">close</span></button>
+          </div>
         </div>
       </div>
-      <div class="back-barcode"><div class="barcode-lines" id="bcLines"></div></div>
     </div>
   </div>
 </div>
@@ -178,7 +279,7 @@ function render(){
     row.forEach((b,j)=>{
       const idx=i+j,col=b.bg_color||'#3a2010',bg=`linear-gradient(180deg,${lighter(col,30)} 0%,${col} 55%)`,icon=b.icon||'language';
       h+=`<div class="book" id="b${idx}" style="background:${bg};width:${bw}px;height:${bh}px" onclick="openBook(${idx})">
-        <div class="spine"></div><div class="pages"></div><div class="gloss"></div>
+        <div class="spine"></div><div class="spine-crease"></div><div class="pages"></div><div class="gloss"></div>
         <span class="bk-icon">${icon}</span>
         <div class="bk-ttl">${b.title||''}</div>
         <div class="bk-aut">${b.author||''}</div>
@@ -215,7 +316,7 @@ function openBook(idx){
   const rect=document.getElementById('b'+idx).getBoundingClientRect();
   const scene=document.getElementById('obScene'),card=document.getElementById('obCard');
   card.style.transition='none';card.classList.remove('flipped');
-  scene.style.cssText=`display:block;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;border-radius:2px 3px 3px 2px;transition:none;`;
+  scene.style.cssText=`display:block;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;border-radius:2px 5px 5px 2px;transition:none;`;
   document.getElementById('bd').classList.add('on');
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     scene.style.cssText=`display:block;left:${tL}px;top:${tT}px;width:${tW}px;height:${tH}px;border-radius:4px 10px 10px 4px;box-shadow:0 40px 80px rgba(0,0,0,0.75),0 10px 30px rgba(0,0,0,0.45);transition:left .52s cubic-bezier(0.16,1,0.3,1),top .52s cubic-bezier(0.16,1,0.3,1),width .52s cubic-bezier(0.16,1,0.3,1),height .52s cubic-bezier(0.16,1,0.3,1),border-radius .52s cubic-bezier(0.16,1,0.3,1);`;
