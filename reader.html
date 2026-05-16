@@ -341,58 +341,82 @@ async function loadTXT(){
   const res=await fetch(FILE);
   if(!res.ok)throw new Error('HTTP '+res.status);
   const text=await res.text();
-  pages=paginateTXT(text,charsPerPage());
+  pages=await paginateTXT(text);
   total=pages.length;
 }
 
-function charsPerPage(){
-  const map={15:1100,17:850,20:650,23:500};
-  return map[fontSize]||850;
+function paginateTXT(text){
+  /* Split by --- chapter break */
+  const sections=text.split(/\n-{3,}\n/);
+  const allParas=[];
+  sections.forEach((sec,si)=>{
+    const paras=sec.split(/\n{2,}/).map(p=>p.trim()).filter(p=>p);
+    paras.forEach(p=>allParas.push({text:p,isChapter:false}));
+    if(si<sections.length-1) allParas.push({text:'✦',isChapter:true});
+  });
+
+  /* Measuring div — same size/font as actual page */
+  const pH=window.innerHeight-54; /* header + progress */
+  const pW=window.innerWidth;
+  const measure=document.createElement('div');
+  measure.style.cssText=`
+    position:fixed;top:-9999px;left:0;
+    width:${pW}px;height:${pH}px;
+    padding:28px 24px 24px;
+    font-family:'Nanum Myeongjo',Georgia,serif;
+    font-size:${fontSize}px;
+    line-height:1.95;
+    word-break:keep-all;
+    overflow:hidden;
+    box-sizing:border-box;
+    visibility:hidden;pointer-events:none;
+  `;
+  document.body.appendChild(measure);
+
+  const result=[];
+  let currentParas=[];
+
+  function fits(paras){
+    measure.innerHTML=renderParasHTML(paras);
+    return measure.scrollHeight<=measure.clientHeight+2;
+  }
+
+  for(const para of allParas){
+    const candidate=[...currentParas,para];
+    if(fits(candidate)){
+      currentParas=candidate;
+    }else{
+      if(currentParas.length>0){
+        result.push(currentParas);
+        currentParas=[para];
+      }else{
+        /* Single paragraph too long — add anyway */
+        result.push([para]);
+        currentParas=[];
+      }
+    }
+  }
+  if(currentParas.length>0) result.push(currentParas);
+  document.body.removeChild(measure);
+  return result;
 }
 
-function paginateTXT(text,cpp){
-  /* Split by --- separator (chapter break) */
-  const sections=text.split(/\n-{3,}\n/);
-  const result=[];
-  sections.forEach(section=>{
-    const paras=section.split(/\n{2,}/).map(p=>p.trim()).filter(p=>p);
-    let cur='';
-    paras.forEach(p=>{
-      if(cur.length+p.length>cpp&&cur.length>0){
-        result.push(cur.trim());cur=p+'\n\n';
-      }else{
-        cur+=p+'\n\n';
-      }
-    });
-    if(cur.trim())result.push(cur.trim());
-    /* Chapter separator visual break */
-    if(result.length>0)result.push('__CHAPTER_BREAK__');
-  });
-  /* Remove trailing chapter break */
-  while(result.length&&result[result.length-1]==='__CHAPTER_BREAK__')result.pop();
-  return result;
+function renderParasHTML(paras){
+  return paras.map(p=>{
+    if(p.isChapter){
+      return`<div style="text-align:center;padding:2em 0;color:var(--text-mute);font-size:.85em;letter-spacing:.5em">${p.text}</div>`;
+    }
+    if(p.text.startsWith('#')){
+      return`<div style="font-size:1.2em;font-weight:700;text-align:center;margin-bottom:1.2em;letter-spacing:.04em">${p.text.replace(/^#+\s*/,'')}</div>`;
+    }
+    return`<p style="margin-bottom:1.1em">${p.text.replace(/\n/g,'<br>')}</p>`;
+  }).join('');
 }
 
 function renderTXTPage(idx){
   const el=document.getElementById('pageEl');
-  const content=pages[idx];
-  if(content==='__CHAPTER_BREAK__'){
-    el.innerHTML=`<div class="page-text" style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:16px">
-      <div style="width:60px;height:1px;background:var(--text-mute);opacity:.4"></div>
-      <span style="font-size:11px;letter-spacing:.3em;color:var(--text-mute);text-transform:uppercase">✦</span>
-      <div style="width:60px;height:1px;background:var(--text-mute);opacity:.4"></div>
-    </div>`;
-    return;
-  }
-  /* Render paragraphs */
-  const html=content.split('\n\n').map(p=>{
-    const t=p.trim();
-    if(t.startsWith('#')){
-      return`<div class="chapter-title">${t.replace(/^#+\s*/,'')}</div>`;
-    }
-    return`<p style="margin-bottom:1.1em">${t.replace(/\n/g,'<br>')}</p>`;
-  }).join('');
-  el.innerHTML=`<div class="page-text">${html}</div>`;
+  const paras=pages[idx];
+  el.innerHTML=`<div class="page-text">${renderParasHTML(paras)}</div>`;
 }
 
 /* ── PDF ── */
@@ -483,19 +507,16 @@ document.addEventListener('keydown',e=>{
 function toggleSettings(){document.getElementById('settingsOverlay').classList.toggle('on');}
 function closeSettings(e){if(e.target===document.getElementById('settingsOverlay'))document.getElementById('settingsOverlay').classList.remove('on');}
 
-function setFont(size){
+async function setFont(size){
   fontSize=size;
   localStorage.setItem('coldlib_font',size);
   document.documentElement.style.setProperty('--fsize',size+'px');
   markActiveFont();
-  /* Re-paginate TXT */
   if(EXT!=='pdf'){
-    const approxPos=cur/total;
-    load().then(()=>{
-      const newIdx=Math.round(approxPos*total);
-      cur=Math.min(newIdx,total-1);
-      renderPage(cur);
-    });
+    const approxPos=total>0?cur/total:0;
+    await loadTXT();
+    cur=Math.min(Math.round(approxPos*total),total-1);
+    renderPage(cur);
   }
 }
 
